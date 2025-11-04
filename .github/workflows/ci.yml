@@ -11,9 +11,12 @@ jobs:
 
     steps: 
         - name: "Setup Nodejs"
-          uses: actions/setup-node@v6
+          uses: actions/setup-node@v6 # setup node js env on the new linux machine provided by github
           with:
             node-version: '24'
 
         - name: "check node version"
-          run: node --version    
+          run: node --version
+
+        - name: "clone the repository"
+          uses: actions/checkout@v2 # fetch repositoy inside the runner machine(ubuntu)
