@@ -20,3 +20,12 @@ jobs:
 
         - name: "clone the repository"
           uses: actions/checkout@v2 # fetch repositoy inside the runner machine(ubuntu)
+
+        - name: "list directories"
+          run: ls
+
+        - name: "install dependencies"
+          run: npm install
+
+        - name : "list directories"
+          run : ls
