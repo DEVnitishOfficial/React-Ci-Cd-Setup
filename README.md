@@ -220,5 +220,6 @@ Open your package.json and in the "scripts" section add:
 
 * Before running the test and build we alos check lint, is there any code quality issue of any lint issue then it will not run the test and build command.
 
+# Learn Artifacts : 
 
-
+* we write our most of the code in react in the form of jsx and then we but when we have to deploy then i convert it into the js, basically a build file is generated then we 
