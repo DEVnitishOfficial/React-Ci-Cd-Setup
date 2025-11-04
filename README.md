@@ -1,16 +1,146 @@
-# React + Vite
+# ⚙️ GitHub Actions Commands
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+GitHub Actions commands are the **core part** of the workflow execution process.
+They allow you to automate tasks like setting up environments, running tests, or deploying code — all within GitHub’s cloud infrastructure.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🧩 Execution Hierarchy in GitHub Actions
 
-## React Compiler
+When a GitHub Action runs, it follows this structured order:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Workflow (Pipeline)** → defines the overall automation process.
+2. **Jobs** → define stages or sections inside a workflow.
+3. **Steps** → each job consists of multiple steps (tasks).
+4. **Commands** → actual operations or scripts run in each step.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 💡 What Are GitHub Actions Commands?
+
+A **GitHub Action command** is a **predefined operation** provided by GitHub or the open-source community that can be directly used as a step in a workflow.
+
+Instead of writing manual shell commands to install dependencies or configure environments, you can use these predefined actions to **save time**, **reduce errors**, and **simplify project setup**.
+
+---
+
+### 🧠 Example Scenario
+
+Suppose we have a **runner machine** (a virtual machine hosted by GitHub on the cloud) with a **Linux OS**, and we want to set up a **Ruby on Rails** project.
+
+To manually set up Ruby and Rails, we’d typically need to:
+
+1. Install Ruby.
+2. Install Rails.
+3. Configure dependencies.
+4. Set up environment variables.
+
+Now imagine your organization has **20 different Ruby or Node.js projects** — repeating all setup commands manually for each would be inefficient and hard to maintain, especially when setup processes change over time.
+
+---
+
+## ✅ Solution: Use Predefined GitHub Actions
+
+GitHub provides a marketplace full of **ready-to-use actions** for common tasks like setting up programming environments, checking out repositories, or caching dependencies.
+
+These are used via the `uses:` keyword in a workflow YAML file.
+
+---
+
+### 🧰 Commonly Used GitHub Actions
+
+| Purpose              | Action Name               | Example                                        |
+| -------------------- | ------------------------- | ---------------------------------------------- |
+| Checkout source code | `actions/checkout@v5`     | Checks out your repo so workflow can access it |
+| Setup Python         | `actions/setup-python@v6` | Installs and configures a Python environment   |
+| Setup Node.js        | `actions/setup-node@v4`   | Installs Node.js and npm for your project      |
+| Setup Ruby           | `ruby/setup-ruby@v1`      | Sets up Ruby & Rails environment               |
+
+---
+
+### 🧪 Example 1 — Python Setup
+
+```yml
+steps:
+  - uses: actions/checkout@v5
+  
+  - uses: actions/setup-python@v6
+    with:
+      python-version: '3.13'  # specify Python version
+  
+  - run: python my_script.py  # run your Python script
+```
+
+👉 This workflow:
+
+* Checks out the code,
+* Installs Python 3.13,
+* Runs a Python script — all using GitHub’s hosted runner.
+
+---
+
+### 🧩 Example 2 — Node.js Setup
+
+```yml
+steps:
+  - uses: actions/checkout@v5
+
+  - name: Setup Node.js
+    uses: Drafteame/node-cache-action@main
+    with:
+      node-version: '20' # Node.js version
+      working-directory: cmd # Directory where npm install will run
+      cache-key-suffix: suffix # Optional caching key suffix
+```
+
+This action:
+
+* Installs Node.js 20,
+* Runs npm install in the `cmd` folder,
+* Enables caching to speed up builds.
+
+---
+
+### 🧱 Example 3 — Ruby & Rails Setup
+
+```yml
+steps:
+  - uses: actions/checkout@v5
+
+  - name: Setup Ruby
+    uses: ruby/setup-ruby@v1
+    with:
+      ruby-version: '3.3'
+      bundler-cache: true
+```
+
+This setup automatically installs Ruby, sets up Bundler, and caches dependencies.
+
+---
+
+## 🪄 Why Use Predefined Actions?
+
+✅ **Consistency:** Setup remains uniform across all projects.
+✅ **Simplicity:** You don’t need to write long installation scripts.
+✅ **Maintenance:** If the action is updated, your projects automatically use the latest setup.
+✅ **Reusability:** The same action can be used across multiple repositories.
+
+---
+
+## 🧭 Difference Between “GitHub Actions” and “GitHub Action”
+
+| Term               | Description                                                                                                       |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| **GitHub Actions** | The entire CI/CD automation platform provided by GitHub (includes workflows, jobs, steps, triggers, and actions). |
+| **GitHub Action**  | A single reusable component or command used inside a workflow (like `actions/checkout@v5`).                       |
+
+---
+
+### 📚 Summary
+
+* **GitHub Actions** automate tasks like testing, building, and deploying applications.
+* Workflows are defined in `.github/workflows/*.yml` files.
+* **Predefined actions** (via `uses:`) simplify environment setup.
+* You can mix **custom shell commands** and **GitHub Actions commands** in the same workflow.
+
+---

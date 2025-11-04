@@ -1,0 +1,13 @@
+name : "sample react pipelie/workflow"
+on:
+  push:
+    branches:
+      - master
+      - main
+
+jobs:
+  build-and-test-react:
+    - runs-on: ubuntu-latest
+      uses: actions/setup-node@v5
+      with:
+        node-version: '24'     
