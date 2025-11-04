@@ -144,3 +144,77 @@ This setup automatically installs Ruby, sets up Bundler, and caches dependencies
 * You can mix **custom shell commands** and **GitHub Actions commands** in the same workflow.
 
 ---
+
+**install testing liberary**
+
+🧩 1️⃣ Install testing dependencies
+
+Run these commands in your project root
+
+* npm install --save-dev @testing-library/dom @testing-library/react @testing-library/jest-dom jsdom vitest
+
+⚙️ 2️⃣ Update vite.config.js
+
+Add the test configuration block at the end:
+
+```js
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/setupTests.js',
+    exclude: ['node_modules', 'dist'],
+  },
+})
+```
+
+🧪 3️⃣ Create setup file
+
+Create a new file:
+
+```js
+src/setupTests.js
+import '@testing-library/jest-dom';
+```
+
+⚡ 4️⃣ Create your test file
+
+Inside src/, create a new file:
+
+```js
+src/App.test.jsx
+
+import { render, screen, fireEvent } from "@testing-library/react";
+import App from "../App.jsx";
+
+
+
+test("renders vite + react app", () => {
+    render(<App />);
+    const linkElement = screen.getByText(/Vite \+ React/i);
+    expect(linkElement).toBeInTheDocument();
+});
+
+test("increment count button by one", () => {
+    render(<App />);
+    const buttonElement = screen.getByText("count is 0");
+    fireEvent.click(buttonElement);
+    expect(buttonElement).toHaveTextContent("count is 1");
+});
+
+```
+
+▶️ 5️⃣ Add test script to package.json
+
+Open your package.json and in the "scripts" section add:
+```js
+"test": "vitest"
+```
+
+* finally run ---> npm test/npm run test
+

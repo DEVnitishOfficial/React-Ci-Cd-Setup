@@ -29,3 +29,9 @@ jobs:
 
         - name : "list directories"
           run : ls
+
+        - name: "run tests"
+          run: npm test
+
+        - name: "build project"
+          run: npm run build
