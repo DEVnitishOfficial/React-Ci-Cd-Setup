@@ -218,3 +218,7 @@ Open your package.json and in the "scripts" section add:
 
 * finally run ---> npm test/npm run test
 
+* Before running the test and build we alos check lint, is there any code quality issue of any lint issue then it will not run the test and build command.
+
+
+
