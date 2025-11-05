@@ -232,3 +232,4 @@ Open your package.json and in the "scripts" section add:
 
 * So after the ci we can upload our data to some other place and when it required in the cd pipeline then download it. and we can achieve this using the github action called upload/artifacts.
 
+* Artifacts provide a storage mechanism where files generated during one part of a workflow (like a build job) can be persisted and then downloaded by a subsequent job within the same or another pipeline.
