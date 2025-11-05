@@ -37,4 +37,10 @@ jobs:
           run: npm test
 
         - name: "build project"
-          run: npm run build
+          run: npm run build  
+
+        - name: "upload prodution ready compiled js code"
+          uses: actions/upload-artifact@v4
+          with:
+            name: build
+            path: build/

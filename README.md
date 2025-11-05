@@ -222,4 +222,13 @@ Open your package.json and in the "scripts" section add:
 
 # Learn Artifacts : 
 
-* we write our most of the code in react in the form of jsx and then we but when we have to deploy then i convert it into the js, basically a build file is generated then we 
+* we write our most of the code in react in the form of jsx and then we but when we have to deploy then i convert it into the js, basically a build file is generated then we generally deploy it in the production like in the vercel, digital ocent etc.
+
+* suppose we have a ci pipeline which has some certian steps and at then end of ci pipeline we have a dist folder which contain compiled js code from jsx also we have cd pipeline whic has some steps and cd deploy it on the vercel.
+
+* the dist folder that we have at the end of the ci pipeline we can send it to the cd pipeline, basically we can share data across pipeline this concept is called artifacts, or using the artifacts we can send data throught the pipeline
+
+* Use artifacts to share data between jobs in a workflow and store data once that workflow has completed.
+
+* So after the ci we can upload our data to some other place and when it required in the cd pipeline then download it. and we can achieve this using the github action called upload/artifacts.
+
