@@ -233,3 +233,15 @@ Open your package.json and in the "scripts" section add:
 * So after the ci we can upload our data to some other place and when it required in the cd pipeline then download it. and we can achieve this using the github action called upload/artifacts.
 
 * Artifacts provide a storage mechanism where files generated during one part of a workflow (like a build job) can be persisted and then downloaded by a subsequent job within the same or another pipeline.
+
+```yml
+ - name: "upload prodution ready compiled js code"
+          uses: actions/upload-artifact@v4
+          with:
+            name: build
+            path: dist
+```
+
+* when the artifact is uploade you will be given a url from the github side like the below one
+* Artifact download URL: https://github.com/DEVnitishOfficial/React-Ci-Cd-Setup/actions/runs/19100319411/artifacts/4473221391
+

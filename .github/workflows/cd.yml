@@ -1,0 +1,34 @@
+name : "CD Pipeline"
+
+on:
+  workflow_run:
+    workflows: ["sample react pipelie/workflow"]
+    types:
+        - completed
+    workflow_dispatch:
+
+jobs:
+  deploy:
+      runs-on: ubuntu-latest
+      environment: production
+
+      steps:
+
+        - name: "Setup Nodejs"
+          uses: actions/setup-node@v6
+          with:
+            node-version: '24'
+
+        - name: "Setup vercel cli"
+          run: npm install -g vercel
+
+
+        - name : "download build file"
+          uses : actions/download-artifact@v4
+          with:
+            name: build
+            run-id: ${{ github.event.workflow_run.id }}
+            github-token: ${{ github.token }}
+
+        - name: "deploy to vercel"
+          run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --name=cicdpipeline-project
