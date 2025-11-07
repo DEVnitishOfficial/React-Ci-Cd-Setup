@@ -1,32 +1,32 @@
-name : "CD Pipeline"
+name : "CD Pipeline" # name of the workflow/pipeline
 
-on:
-  workflow_run:
+on: # event that triggers the workflow
+  workflow_run: # once our ci pipeline is completed then trigger this cd pipeline
     workflows: ["sample react pipelie/workflow"]
     types:
         - completed
-    workflow_dispatch:
+    workflow_dispatch: # manual ui trigger
 
 jobs:
-  deploy:
-      runs-on: ubuntu-latest
-      environment: production
+  deploy: # job name
+      runs-on: ubuntu-latest # runner os
+      environment: production # environment name  
 
       steps:
 
-        - name: "Setup Nodejs"
+        - name: "Setup Nodejs" # nodejs setup step
           uses: actions/setup-node@v6
           with:
             node-version: '24'
 
         - name: "Setup vercel cli"
-          run: npm install -g vercel
+          run: npm install -g vercel # linux command to install vercel cli
 
 
-        - name : "download build file"
+        - name : "download build file" # download build artifact step
           uses : actions/download-artifact@v4
           with:
-            name: build
+            name: build # artifact name to be downloaded
             run-id: ${{ github.event.workflow_run.id }}
             github-token: ${{ github.token }}
 

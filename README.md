@@ -220,28 +220,268 @@ Open your package.json and in the "scripts" section add:
 
 * Before running the test and build we alos check lint, is there any code quality issue of any lint issue then it will not run the test and build command.
 
-# Learn Artifacts : 
 
-* we write our most of the code in react in the form of jsx and then we but when we have to deploy then i convert it into the js, basically a build file is generated then we generally deploy it in the production like in the vercel, digital ocent etc.
+# 📦 **GitHub Actions Artifacts & Contexts**
 
-* suppose we have a ci pipeline which has some certian steps and at then end of ci pipeline we have a dist folder which contain compiled js code from jsx also we have cd pipeline whic has some steps and cd deploy it on the vercel.
+GitHub Actions provides features like **Artifacts** and **Contexts** that make CI/CD pipelines powerful and flexible.
 
-* the dist folder that we have at the end of the ci pipeline we can send it to the cd pipeline, basically we can share data across pipeline this concept is called artifacts, or using the artifacts we can send data throught the pipeline
+* **Artifacts** help you **store and share data** between jobs or workflows.
+* **Contexts** provide **metadata and dynamic variables** about your workflow, environment, secrets, and repository.
 
-* Use artifacts to share data between jobs in a workflow and store data once that workflow has completed.
+Let’s break both concepts down step-by-step 👇
 
-* So after the ci we can upload our data to some other place and when it required in the cd pipeline then download it. and we can achieve this using the github action called upload/artifacts.
+---
 
-* Artifacts provide a storage mechanism where files generated during one part of a workflow (like a build job) can be persisted and then downloaded by a subsequent job within the same or another pipeline.
+## 🧱 **1. Artifacts in GitHub Actions**
+
+### 🧠 **What Are Artifacts?**
+
+In CI/CD pipelines, **artifacts** are files or data generated during one part of a workflow that can be **stored and shared** with other jobs or workflows.
+
+For example:
+
+* When you build a React project, the **output folder (`dist` or `build`)** contains your production-ready files.
+* You may want to pass those files to another job or a CD (Continuous Delivery) pipeline for deployment.
+
+This **data-sharing mechanism** between jobs or workflows is achieved using **artifacts**.
+
+---
+
+### 📘 **Example Scenario**
+
+Let’s say you have a **React project**:
+
+* Developers write code in **JSX** files.
+* During the **CI pipeline**, the JSX code is compiled (using `npm run build`) into JavaScript files — stored in a folder like `dist/` or `build/`.
+* Now your **CD pipeline** (deployment phase) needs those compiled files to deploy to **Vercel**, **AWS**, or **DigitalOcean**.
+
+Instead of rebuilding the code again in the CD pipeline, you can **upload the built files as artifacts** during CI, and **download them** later during CD.
+
+That’s how we efficiently pass data across pipelines using **artifacts**.
+
+---
+
+### ⚙️ **Workflow Example – Uploading Artifacts**
+
+Below is an example where we upload the production-ready `dist` folder as an artifact after building the project:
 
 ```yml
- - name: "upload prodution ready compiled js code"
-          uses: actions/upload-artifact@v4
-          with:
-            name: build
-            path: dist
+name: Build and Upload Artifact
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build React app
+        run: npm run build
+
+      - name: Upload production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build             # name of artifact
+          path: dist              # folder to upload
 ```
 
-* when the artifact is uploade you will be given a url from the github side like the below one
-* Artifact download URL: https://github.com/DEVnitishOfficial/React-Ci-Cd-Setup/actions/runs/19100319411/artifacts/4473221391
+---
 
+### 🧩 **Explanation:**
+
+* The `actions/upload-artifact@v4` uploads the folder you specify (`dist`) as an artifact.
+* After uploading, GitHub provides a **download link** in your workflow logs:
+
+  > Example:
+  > `Artifact download URL: https://github.com/username/repo/actions/runs/19100319411/artifacts/4473221391`
+* This artifact can now be accessed in later jobs or workflows.
+
+---
+
+### ⚙️ **Downloading Artifacts in Another Job**
+
+To use this artifact (e.g., in your **CD pipeline** for deployment):
+
+```yml
+- name: Download build artifact
+  uses: actions/download-artifact@v4
+  with:
+    name: build                     # must match uploaded artifact name
+    run-id: ${{ github.event.workflow_run.id }}
+    github-token: ${{ github.token }}
+
+- name: Deploy to Vercel
+  run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --name=cicdpipeline-project
+```
+
+---
+
+### 🧠 **Explanation**
+
+* `actions/download-artifact@v4` downloads the uploaded `build` artifact.
+* `run-id` specifies which workflow run to fetch the artifact from.
+* `${{ github.token }}` authenticates the request securely.
+* Once downloaded, your deployment tool (e.g., Vercel CLI) uses it to deploy your production build.
+
+---
+
+### 💡 **Why Use Artifacts?**
+
+| Benefit                       | Description                                                            |
+| ----------------------------- | ---------------------------------------------------------------------- |
+| 💾 **Persist Build Data**     | Store build results, reports, or logs after a job finishes.            |
+| 🔄 **Share Between Jobs**     | Pass files from one job to another within the same workflow.           |
+| 🔗 **Cross-Workflow Sharing** | Access data between separate workflows (like CI → CD).                 |
+| ⚡ **Save Time**               | Avoid rebuilding code multiple times — reuse generated artifacts.      |
+| 📊 **Store Test Reports**     | Upload reports like coverage data, logs, or screenshots for debugging. |
+
+---
+
+### 🧰 **Common Use Cases**
+
+* Sharing build artifacts (e.g., compiled frontend assets).
+* Storing test reports or code coverage reports.
+* Caching generated files or Docker images.
+* Passing configuration files between CI and CD jobs.
+
+---
+
+## 🧭 **2. GitHub Contexts**
+
+### 🧠 **What Are Contexts?**
+
+**Contexts** in GitHub Actions are **dynamic variables** that store metadata about the workflow run, environment, repository, or GitHub user.
+They allow you to **customize your pipeline dynamically** — based on event data or environment details.
+
+In short:
+
+> Contexts give you information **about “what’s happening” inside your workflow** — like who triggered it, which branch, what commit, etc.
+
+---
+
+### 🧩 **Popular GitHub Contexts**
+
+| Context   | Description                                             | Example Usage                            |
+| --------- | ------------------------------------------------------- | ---------------------------------------- |
+| `github`  | Metadata about the workflow run, repository, and event. | `${{ github.repository }}` → `user/repo` |
+| `env`     | Environment variables in your workflow.                 | `${{ env.NODE_ENV }}`                    |
+| `job`     | Information about the current job.                      | `${{ job.status }}`                      |
+| `steps`   | Access output values from previous steps.               | `${{ steps.build.outputs.version }}`     |
+| `runner`  | Info about the machine running the job.                 | `${{ runner.os }}` → `Linux`             |
+| `secrets` | Secure environment variables (like API keys).           | `${{ secrets.VERCEL_TOKEN }}`            |
+
+---
+
+### ⚙️ **Example – Using Contexts in Deployment**
+
+```yml
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Deploy to Vercel
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm --name=cicdpipeline-project
+```
+
+### 🔍 **Explanation**
+
+* `${{ github.event.workflow_run.id }}` → gives the ID of the workflow that produced the artifact.
+* `${{ github.token }}` → automatically generated token by GitHub to authenticate actions.
+* `${{ secrets.VERCEL_TOKEN }}` → a secure secret stored in your repo settings (used for deployment).
+
+---
+
+## 🔐 **GitHub Secrets**
+
+* **Secrets** are encrypted environment variables used to store sensitive information such as:
+
+  * API keys
+  * Database passwords
+  * Access tokens
+* These are stored in your repository under:
+  `Settings → Secrets and variables → Actions`
+
+> Example:
+>
+> ```yml
+> run: vercel --token ${{ secrets.VERCEL_TOKEN }}
+> ```
+>
+> Here, `VERCEL_TOKEN` is securely stored in your GitHub repo, never exposed in plain text.
+
+---
+
+## 🧩 **Example Use Case – Combine CI + CD with Artifacts and Contexts**
+
+Let’s tie it all together 👇
+
+```yml
+name: React CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: npm install
+      - run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-build
+          path: dist
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: react-build
+
+      - name: Deploy to Vercel
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm
+```
+
+---
+
+## 🧠 **Summary**
+
+| Concept             | Purpose                                       | Example                                         |
+| ------------------- | --------------------------------------------- | ----------------------------------------------- |
+| **Artifact**        | Store and share files between jobs/workflows. | Upload `dist` folder from CI to use in CD.      |
+| **Context**         | Provides metadata and workflow variables.     | `${{ github.actor }}`, `${{ secrets.API_KEY }}` |
+| **Secret**          | Securely store sensitive credentials.         | `${{ secrets.VERCEL_TOKEN }}`                   |
+| **Upload Action**   | Saves files as artifacts.                     | `actions/upload-artifact@v4`                    |
+| **Download Action** | Retrieves previously saved artifacts.         | `actions/download-artifact@v4`                  |
+
+---
+
+### 💬 **In Simple Words**
+
+* **Artifacts** = Your files that travel between jobs (like your `dist/` folder).
+* **Contexts** = Information about your workflow (who ran it, on which branch, etc.).
+* **Secrets** = Hidden credentials used securely in workflows.
+
+---
